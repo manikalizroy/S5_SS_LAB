@@ -2,98 +2,111 @@
 #include <stdlib.h>
 #include <string.h>
 
-int main() {
-    char label[20], opcode[20], operand[30];
-    char code[20], mnemonic[20], symbol[20];
-    char add[20], objectcode[50];
-    int locctr, loc;
+int main()
+{
+    FILE *f1, *f2, *f3, *f4, *f5, *f6;
+    char label[30], opcode[30], operand[30], loc[30];
+    char symaddr[30], symbol[30];
+    char temp_opcode[30], temp_code[30];
+    char objcode[30], startaddr[30];
+    int length, i;
 
-    FILE *fp1,*fp2,*fp3,*fp4;
+    f1 = fopen("intermediate.txt", "r");  // from Pass 1
+    f2 = fopen("optab.txt", "r");         // opcode table
+    f3 = fopen("symtab.txt", "r");        // symbol table
+    f4 = fopen("hte.txt", "w");        // HTE object program
+    f5 = fopen("length.txt", "r");        // program length
+    f6 = fopen("assemlist.txt", "w");       // assembly listing with object code
 
-    fp1 = fopen("intermediate.txt","r"); // from Pass1
-    fp2 = fopen("twoout.txt","w");       // final Pass2 output
-    fp3 = fopen("optab.txt","r");        // OPTAB
-    fp4 = fopen("symtab.txt","r");       // SYMTAB
-
-    if(!fp1 || !fp2 || !fp3 || !fp4) {
-        printf("Error opening file\n");
+    if (!f1 || !f2 || !f3 || !f4 || !f5 || !f6)
+    {
+        printf("Error opening file!!\n");
         return 1;
     }
 
-    // Read first line (START)
-    fscanf(fp1,"%s %s %s",label,opcode,operand);
-    if(strcmp(opcode,"START")==0) {
-        fprintf(fp2,"%s\t%s\t%s\n",label,opcode,operand);
-        fscanf(fp1,"%d%s%s%s",&locctr,label,opcode,operand);
+    fscanf(f5, "Decimal: %d\nHex: %X\n", &length, &length);
+
+    // Print heading for listing file
+    //fprintf(f6, "Loc\tLabel\tOpcode\tOperand\tObjectCode\n");
+
+    fscanf(f1, "%s %s %s %s", loc, label, opcode, operand);
+    if (strcmp(opcode, "START") == 0)
+    {
+        strcpy(startaddr, operand);
+        fprintf(f4, "H^%s^00%s^%06X\n", label, operand, length);
+        fprintf(f6, "%s\t%s\t%s\t%s\t----\n", loc, label, opcode, operand);
+        fscanf(f1, "%s %s %s %s", loc, label, opcode, operand);
+        fprintf(f4, "T^00%s^", startaddr);  // Start text record
     }
 
-    // Process until END
-    while(strcmp(opcode,"END")!=0) {
-        objectcode[0] = '\0';  // reset
-        int found = 0;
+    while (strcmp(opcode, "END") != 0)
+    {
+        rewind(f2);
+        rewind(f3);
+        objcode[0] = '\0';
 
-        rewind(fp3);  // reset optab file
-        while(fscanf(fp3,"%s %s",code,mnemonic) != EOF) {
-            if(strcmp(opcode,code)==0) {
-                found = 1;
+        // Search OPTAB
+        while (fscanf(f2, "%s %s", temp_opcode, temp_code) != EOF)
+        {
+            if (strcmp(opcode, temp_opcode) == 0)
+            {
+                // search SYMTAB for operand
+                while (fscanf(f3, "%s %s", symaddr, symbol) != EOF)
+                {
+                    if (strcmp(operand, symbol) == 0)
+                    {
+                        sprintf(objcode, "%s%s", temp_code, symaddr);
+                        break;
+                    }
+                }
                 break;
             }
         }
 
-        if(found) {
-            // Look up SYMTAB for operand address
-            int symFound = 0;
-            rewind(fp4);
-            while(fscanf(fp4,"%d %s",&loc,symbol) == 2) {
-                if(strcmp(symbol,operand)==0) {
-                    symFound = 1;
-                    break;
+        if (strcmp(opcode, "BYTE") == 0)
+        {
+            if (operand[0] == 'C') // Character constant
+            {
+                for (i = 2; i < strlen(operand) - 1; i++)
+                {
+                    sprintf(objcode + strlen(objcode), "%X", operand[i]);
                 }
             }
-            if(symFound) {
-                sprintf(add,"%04X",loc);        // operand address in hex
-                strcpy(objectcode,mnemonic);    // opcode hex
-                strcat(objectcode,add);         // append operand address
-            } else {
-                strcpy(objectcode,mnemonic);    // just opcode if no symbol
-                strcat(objectcode,"0000");
+            else if (operand[0] == 'X') // Hex constant
+            {
+                strncpy(objcode, operand + 2, strlen(operand) - 3);
+                objcode[strlen(operand) - 3] = '\0';
             }
         }
-        else if(strcmp(opcode,"BYTE")==0) {
-            if(operand[0]=='C') {
-                // convert characters to hex
-                objectcode[0] = '\0';
-                for(int i=2; i<strlen(operand)-1; i++) {
-                    sprintf(add,"%02X",operand[i]);
-                    strcat(objectcode,add);
-                }
-            } else if(operand[0]=='X') {
-                // take hex directly
-                strncpy(objectcode, operand+2, strlen(operand)-3);
-                objectcode[strlen(operand)-3] = '\0';
-            }
-        }
-        else if(strcmp(opcode,"WORD")==0) {
-            sprintf(objectcode,"%06X",atoi(operand));  // 3-byte constant
-        }
-        else if(strcmp(opcode,"RESW")==0 || strcmp(opcode,"RESB")==0) {
-            strcpy(objectcode,""); // no object code
+        else if (strcmp(opcode, "WORD") == 0)
+        {
+            sprintf(objcode, "%06X", atoi(operand));
         }
 
-        // Print line to output
-        fprintf(fp2,"%d\t%s\t%s\t%s\t%s\n",locctr,label,opcode,operand,objectcode);
+        // Print into listing file
+        if (strlen(objcode) > 0)
+        {
+            fprintf(f6, "%s\t%s\t%s\t%s\t%s\n", loc, label, opcode, operand, objcode);
+            fprintf(f4, "^%s", objcode); // Append to text record
+        }
+        else
+        {
+            fprintf(f6, "%s\t%s\t%s\t%s\t----\n", loc, label, opcode, operand);
+        }
 
-        // Read next line
-        fscanf(fp1,"%d%s%s%s",&locctr,label,opcode,operand);
+        fscanf(f1, "%s %s %s %s", loc, label, opcode, operand);
     }
 
-    // Print END line
-    fprintf(fp2,"%d\t%s\t%s\t%s\n",locctr,label,opcode,operand);
+    // End record
+    fprintf(f4, "\nE^00%s\n", startaddr);
+    fprintf(f6, "%s\t%s\t%s\t%s\t----\n", loc, label, opcode, operand);
 
-    fclose(fp1);
-    fclose(fp2);
-    fclose(fp3);
-    fclose(fp4);
+    fclose(f1);
+    fclose(f2);
+    fclose(f3);
+    fclose(f4);
+    fclose(f5);
+    fclose(f6);
 
     return 0;
 }

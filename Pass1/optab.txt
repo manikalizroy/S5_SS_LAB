@@ -1,4 +1,6 @@
+START *
 LDA     00
-STA     0C
 LDCH    50
+STA     0C
 STCH    54
+END
