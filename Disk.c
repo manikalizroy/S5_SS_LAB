@@ -1,8 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-
 int n,r[25],temp[25],initial,size;
-
 void fcfs()
 {
     printf("FCFS\n");
@@ -115,9 +113,7 @@ int main()
         scanf("%d",&r[i]);
     }
     for(i=0;i<n;i++)
-    {
         temp[i]=r[i];
-    }
     printf("Enter the total disk size : ");
     scanf("%d",&size);
     printf("Enter the initial head position : ");
