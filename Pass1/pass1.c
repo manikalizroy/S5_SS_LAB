@@ -5,22 +5,18 @@
 int main()
 {
     FILE *f1,*f2,*f3,*f4,*f5;
-    char lab[30],opcode[30],operand[30];
-    char temp_opcode[30],temp_code[30];
+    char lab[30],opcode[30],operand[30], temp_opcode[30],temp_code[30];
     int locctr=0,x,length,start=0;
-
     f1=fopen("input.txt","r");
     f2=fopen("optab.txt","r");
     f3=fopen("intermediate.txt","w");
     f4=fopen("symtab.txt","w");
     f5=fopen("length.txt","w");
-
     if(!f1 || !f2 || !f3 || !f4 ||!f5)
     {
         printf("Error opening file!!\n");
         return 1;
     }
-
     while(fscanf(f1,"%s %s %s",lab,opcode,operand) !=EOF)
     {
         if (strcmp(opcode, "END") == 0)
@@ -28,9 +24,7 @@ int main()
             fprintf(f3, "%04X\t%s\t%s\t%s\n",locctr, lab, opcode, operand);
             break;
         }
-
         x=0;
-
         if(strcmp(lab, "**") == 0)   //no label is present
         {
             if(strcmp(opcode, "START") == 0)
@@ -95,15 +89,12 @@ int main()
             }
         }
     }
-
     length=locctr-start;
     fprintf(f5, "Decimal: %d\nHex: %X\n", length, length);
-
     fclose(f1);
     fclose(f2);
     fclose(f3);
     fclose(f4);
     fclose(f5);
-
     return 0;
 }
