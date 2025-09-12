@@ -109,9 +109,7 @@ int main()
     scanf("%d",&n);
     printf("Enter the request sequence : ");
     for(i=0;i<n;i++)
-    {
         scanf("%d",&r[i]);
-    }
     for(i=0;i<n;i++)
         temp[i]=r[i];
     printf("Enter the total disk size : ");
