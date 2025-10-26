@@ -3,7 +3,7 @@ DATA SEGMENT
 STRING1 DB 11H,22H,33H,44H,55H
 MSG1 DB "FOUND$"
 MSG2 DB"NOT FOUND$"
-SE DB 10H
+SE DB 10H        -- element to be searched is 10H
 DATA ENDS
 PRINT MACRO MSG
  MOV AH,09H
@@ -13,14 +13,15 @@ PRINT MACRO MSG
  ENDM
  
  CODE SEGMENT
-  START:MOV AX,DATA
+  START:
+  MOV AX,DATA
   MOV DS,AX
   MOV AL,SE
   LEA SI,STRING1
-  MOV CX,04H
+  MOV CX,05H          -- loop counter is 5, since there are 5 elements
   
-  UP:MOV BL,[SI]
-     CMP AL,BL
+  UP: MOV BL,[SI]
+      CMP AL,BL
       JZ FO
       INC SI
       DEC CX
@@ -28,8 +29,8 @@ PRINT MACRO MSG
       PRINT MSG2
       JMP END1
       
-   FO:PRINT MSG1
-   END1:
+  FO: PRINT MSG1
+  END1:
   INT 3
   
  CODE ENDS
