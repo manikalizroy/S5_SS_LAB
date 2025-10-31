@@ -38,6 +38,7 @@ START:
 
         MOV DL,BL
         ADD DL,30H
+        MOV AH,02
         INT 21H
         MOV AH,4CH
         INT 21H
