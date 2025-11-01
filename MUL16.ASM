@@ -56,7 +56,7 @@ CODE SEGMENT
        AAM
 
        MOV DX,AX        ; DX stores result contained in AX
-       ADD DL,[SI]
+       ADD DL,[SI]       ; here it adds the content in SI (which contains the higher byte recieved from multiplying CL*BL) to DL
        MOV AH,00H
 
        MOV AL,CH      
