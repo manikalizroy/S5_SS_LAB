@@ -5,7 +5,7 @@ DATA SEGMENT
  M2 DB 10,13,"Number of vowels:$"
  M3 DB 10,13,"Number of digits:$"
  M4 DB 10,13,"Number of consonants:$"
- INSTR DB 50 DUP(?)        ; space for input
+ STR DB 50 DUP(?)        ; space for input
  MAXLEN DB 0AH
  DELIM DB "'"
  VCNT DB 00H
@@ -39,7 +39,7 @@ START:
  MOV AX,EXTRA
  MOV ES,AX
 
- LEA SI,INSTR
+ LEA SI,STR
  PRTMSG M1
 
  MOV BX,00
@@ -61,18 +61,18 @@ ENDGET:
  LEA SI,INSTR
  MOV CL,BL        ; number of chars to process
 
-CHKA:
+CHKA:             ; check if vowel
  MOV AL,[SI]      ; take one character
  INC SI
 
  MOV CH,0AH
  LEA DI,VWSTR
- REPNE SCASB
+ REPNE SCASB      ;  (Repeat while not equal) (Scan String Byte)
  JNE CHKD
  INC VCNT
  JMP ENDC
 
-CHKD:
+CHKD:              ; check if digit
  MOV CH,0AH
  LEA DI,DGSTR
  REPNE SCASB
