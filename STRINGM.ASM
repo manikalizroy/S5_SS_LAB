@@ -57,7 +57,7 @@ GETC:
  LOOP GETC
 
 ENDGET:
- CLD
+ CLD              ; Clear Direction Flag
  LEA SI,INSTR
  MOV CL,BL        ; number of chars to process
 
