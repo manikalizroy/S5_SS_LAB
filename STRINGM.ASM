@@ -58,7 +58,7 @@ GETC:
 
 ENDGET:
  CLD              ; Clear Direction Flag
- LEA SI,INSTR
+ LEA SI,STR
  MOV CL,BL        ; CL now has the count of characters
 
 CHKA:             ; check if vowel
