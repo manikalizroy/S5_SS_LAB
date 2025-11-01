@@ -49,22 +49,21 @@ START:
 
 GETC:
  INT 21H
- CMP AL,DELIM
+ CMP AL,DELIM     ; Reading characters until '  (The typed character is stored in AL)
  JE ENDGET
  MOV [SI],AL
  INC SI
- INC BL
+ INC BL           ; BL = count of entered characters.
  LOOP GETC
 
 ENDGET:
  CLD              ; Clear Direction Flag
  LEA SI,INSTR
- MOV CL,BL        ; number of chars to process
+ MOV CL,BL        ; CL now has the count of characters
 
 CHKA:             ; check if vowel
  MOV AL,[SI]      ; take one character
  INC SI
-
  MOV CH,0AH
  LEA DI,VWSTR
  REPNE SCASB      ;  (Repeat while not equal) (Scan String Byte)
