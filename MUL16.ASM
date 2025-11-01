@@ -44,31 +44,35 @@ CODE SEGMENT
 
        LEA SI,PROD
        MOV AH,00H
-       MUL BL
+       MUL BL        ; ie CL * BL
        AAM
        MOV [SI],AL
        INC SI
        MOV [SI],AH
        MOV AH,00H
+
        MOV AL,BH
-       MUL CL
+       MUL CL        ; ie CL * BH
        AAM
-       MOV DX,AX
+
+       MOV DX,AX        ; DX stores result contained in AX
        ADD DL,[SI]
        MOV AH,00H
-       MOV AL,CH
-       MUL BL
+
+       MOV AL,CH      
+       MUL BL        ; CH * BL
        AAM
-       ADD DX,AX
-       MOV AL,DL
-       MOV AH,00H
+       ADD DX,AX     ;  Add partial product to running sum
+       MOV AL,DL      ;  Isolate lower byte
+       MOV AH,00H     
        AAM
-       ADD DH,AH
-       MOV DL,DH
-       MOV DH,00H
+       ADD DH,AH     ;  Propagate carry
+       MOV DL,DH       ;  Shift and clear for next digit
+       MOV DH,00H       ;  Shift and clear for next digit
        MOV [SI],AL
        INC SI
-       MOV AH,00H
+       MOV AH,00H       ;  Reset AH
+
        MOV AL,BH
        MUL CH
        AAM
