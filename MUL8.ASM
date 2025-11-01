@@ -34,12 +34,12 @@ START:
 
     PRTMSG M2            ; Print "Product : "
     MOV DL, BH           ; Print tens digit
-    OR DL, 30H
+    OR DL, 30H			; converts numeric digit → ASCII code
     MOV AH, 02H
     INT 21H
 
     MOV DL, BL           ; Print ones digit
-    OR DL, 30H			 ; converts numeric digit → ASCII code
+    OR DL, 30H			; converts numeric digit → ASCII code
     INT 21H
 
     MOV AH, 4CH          
